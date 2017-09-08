@@ -1,8 +1,14 @@
+build
 .gradle
-build/
-
-# Ignore Gradle GUI config
-gradle-app.setting
-
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+.idea
+*.iml
+*.jar
+.settings
+bin
+.classpath
+.project
 !gradle-wrapper.jar
+MANIFEST.MF
+
+# Mac Stuff
+.DS_STORE
