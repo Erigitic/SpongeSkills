@@ -2,6 +2,8 @@ package com.erigitic.config;
 
 import com.erigitic.main.SpongeSkills;
 import com.erigitic.skills.MiningSkill;
+import com.erigitic.skills.Skill;
+import com.erigitic.skills.WoodcuttingSkill;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -13,6 +15,7 @@ import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -29,6 +32,7 @@ public class SkillManager {
     private SpongeSkills plugin;
 
     private MiningSkill miningSkill;
+    private WoodcuttingSkill woodcuttingSkill;
 
     private AccountManager accountManager;
     private ConfigurationNode accountsConfig;
@@ -39,6 +43,7 @@ public class SkillManager {
         logger = plugin.getLogger();
 
         miningSkill = new MiningSkill();
+        woodcuttingSkill = new WoodcuttingSkill();
 
         accountManager = plugin.getAccountManager();
         accountsConfig = accountManager.getAccountsConfig();
@@ -54,8 +59,9 @@ public class SkillManager {
             skillsConfig = loader.load();
 
             if (!skillsFile.exists()) {
-                skillsConfig.getNode("placeholder").setValue(true);
                 miningSkill.setupConfig(skillsConfig);
+                woodcuttingSkill.setupConfig(skillsConfig);
+
                 loader.save(skillsConfig);
             }
         } catch (IOException e) {
@@ -83,24 +89,36 @@ public class SkillManager {
         }
     }
 
+    private void giveExp(Player player, Account account, String skillName, int expAmount) {
+        account.setSkillExp(skillName, account.getSkillExp(skillName) + expAmount);
+
+        checkForLevelUp(player, account, skillName);
+    }
+
+    // NOTE: When using the @First annotation, if an object is not found, in this case a Player object, the listener will not
+    // be called. Therefore we don't need to do any sort of check ot see if a player is present.
     @Listener
-    public void onBlockBreak(ChangeBlockEvent.Break event) {
-        if (event.getCause().first(Player.class).isPresent()) {
-            Player player = event.getCause().first(Player.class).get();
-            UUID playerUUID = player.getUniqueId();
-            String blockName = event.getTransactions().get(0).getOriginal().getState().getName();
+    public void onBlockBreak(ChangeBlockEvent.Break event, @First Player player) {
+        UUID playerUUID = player.getUniqueId();
+        // This does not distinguish between different variants of logs/stone/etc. So the same result will occur with oak logs and spruce logs for example. This'll be discussed in a later video.
+        String blockName = event.getTransactions().get(0).getOriginal().getState().getType().getName();
+        Account account = new Account(plugin, accountManager, playerUUID);
 
-            int miningExpAmount = skillsConfig.getNode("mining", blockName).getInt(0);
+        // Loop through each skill in order to find an exp value for the broken block, if any.
+        for (String skillName : Skill.SKILLS) {
+            // Check the configuration file for an exp value for the broken block, if one is not found default to 0.
+            int expAmount = skillsConfig.getNode(skillName, blockName).getInt(0);
 
-            Account account = new Account(plugin, accountManager, playerUUID);
+            // If an exp value was found for the broken block, give the player some exp in that skill and send a message
+            if (expAmount > 0) {
+                giveExp(player, account, skillName, expAmount);
 
-            if (miningExpAmount > 0) {
-                account.setSkillExp("mining", account.getSkillExp("mining") + miningExpAmount);
+                player.sendMessage(Text.of("You broke: ", blockName, " worth ", TextColors.GOLD, expAmount, " exp."));
 
-                checkForLevelUp(player, account, "mining");
+                // We did what we needed to do, so let's skedaddle
+                break;
             }
-
-            player.sendMessage(Text.of("You broke: ", blockName, " worth ", TextColors.GOLD, miningExpAmount, " exp."));
         }
+
     }
 }
