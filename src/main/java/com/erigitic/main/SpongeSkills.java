@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.UUID;
 
-@Plugin(id="spongeskills", name="Sponge Skills", version="1.0.0")
+@Plugin(id="spongeskills", name="Sponge Skills", description="Skills for Sponge",version="1.0.0")
 public class SpongeSkills {
     @Inject
     @DefaultConfig(sharedRoot = false)
