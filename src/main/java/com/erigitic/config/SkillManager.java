@@ -96,7 +96,7 @@ public class SkillManager {
     }
 
     // NOTE: When using the @First annotation, if an object is not found, in this case a Player object, the listener will not
-    // be called. Therefore we don't need to do any sort of check ot see if a player is present.
+    // be called. Therefore we don't need to do any sort of check to see if a player is present.
     @Listener
     public void onBlockBreak(ChangeBlockEvent.Break event, @First Player player) {
         UUID playerUUID = player.getUniqueId();
@@ -119,6 +119,5 @@ public class SkillManager {
                 break;
             }
         }
-
     }
 }
