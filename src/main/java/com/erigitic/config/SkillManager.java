@@ -65,6 +65,7 @@ public class SkillManager {
 
         if (expAmount >= expToLvl) {
             account.setSkillLevel(skillName, curLvl + 1);
+            account.awardSkillPoint();
 
             player.sendMessage(Text.of("You are now level ", TextColors.GOLD, account.getSkillLevel(skillName), TextColors.WHITE,
                     " in ", skillName, "."));
@@ -99,9 +100,9 @@ public class SkillManager {
 
             // If an exp value was found for the broken block, give the player some exp in that skill and send a message
             if (expAmount > 0) {
-                giveExp(player, account, skillName, expAmount);
-
                 player.sendMessage(Text.of("You broke: ", blockName, " worth ", TextColors.GOLD, expAmount, " exp."));
+
+                giveExp(player, account, skillName, expAmount);
 
                 // We did what we needed to do, so let's skedaddle
                 break;
