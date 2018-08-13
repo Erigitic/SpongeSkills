@@ -53,16 +53,7 @@ public class SpongeSkills {
 
     @Listener
     public void preInit(GamePreInitializationEvent event) {
-        try {
-            config = loader.load();
-
-            if (!defaultConfig.toFile().exists()) {
-                config.getNode("placeholder").setValue(true);
-                loader.save(config);
-            }
-        } catch (IOException e) {
-            logger.warn("Error loading default configuration!");
-        }
+        setupConfig();
 
         accountManager = new AccountManager(this);
         skillManager = new SkillManager(this);
@@ -95,6 +86,18 @@ public class SpongeSkills {
         UUID playerUUID = event.getTargetEntity().getUniqueId();
 
         accountManager.createAccount(playerUUID);
+    }
+
+    private void setupConfig() {
+        try {
+            if (!defaultConfig.toFile().exists()) {
+                pluginContainer.getAsset("spongeskills.conf").get().copyToFile(defaultConfig);
+            }
+
+            config = loader.load();
+        } catch (IOException e) {
+            logger.warn("An error occurred while setting up the main configuration file!");
+        }
     }
 
     private void createAndRegisterCommands() {
