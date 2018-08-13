@@ -16,6 +16,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.*;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 
 import java.io.IOException;
@@ -41,6 +42,9 @@ public class SpongeSkills {
 
     @Inject
     private Game game;
+
+    @Inject
+    private PluginContainer pluginContainer;
 
     private ConfigurationNode config;
 
@@ -109,6 +113,10 @@ public class SpongeSkills {
 
     public Path getConfigDir() {
         return configDir;
+    }
+
+    public PluginContainer getPluginContainer() {
+        return pluginContainer;
     }
 
     public AccountManager getAccountManager() {
