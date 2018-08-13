@@ -39,4 +39,20 @@ public class Account {
 
         accountManager.saveConfig();
     }
+
+    public int getSkillPoints() {
+        return accountsConfig.getNode(uuid.toString(), "skillPoints").getInt(0);
+    }
+
+    public void setSkillPoints(int skillPoints) {
+        accountsConfig.getNode(uuid.toString(), "skillPoints").setValue(skillPoints);
+
+        accountManager.saveConfig();
+    }
+
+    public void awardSkillPoint() {
+        int curSkillPoints = getSkillPoints();
+
+        setSkillPoints(curSkillPoints + 1);
+    }
 }

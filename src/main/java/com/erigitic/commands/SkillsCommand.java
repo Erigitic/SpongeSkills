@@ -40,6 +40,8 @@ public class SkillsCommand implements CommandExecutor {
                 player.sendMessage(Text.of(skill.toUpperCase(), " | Level ", level, " - ", exp, " / ", expToLevel, " exp"));
             }
 
+            player.sendMessage(Text.of("Skill Points: ", account.getSkillPoints()));
+
             return CommandResult.success();
         }
 
