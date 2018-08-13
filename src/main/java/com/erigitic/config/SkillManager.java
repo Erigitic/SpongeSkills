@@ -1,9 +1,7 @@
 package com.erigitic.config;
 
 import com.erigitic.main.SpongeSkills;
-import com.erigitic.skills.MiningSkill;
 import com.erigitic.skills.Skill;
-import com.erigitic.skills.WoodcuttingSkill;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -25,14 +23,10 @@ import java.util.UUID;
 
 public class SkillManager {
     private Logger logger;
-    private File skillsFile;
     private ConfigurationLoader<CommentedConfigurationNode> loader;
     private ConfigurationNode skillsConfig;
 
     private SpongeSkills plugin;
-
-    private MiningSkill miningSkill;
-    private WoodcuttingSkill woodcuttingSkill;
 
     private AccountManager accountManager;
     private ConfigurationNode accountsConfig;
@@ -42,9 +36,6 @@ public class SkillManager {
 
         logger = plugin.getLogger();
 
-        miningSkill = new MiningSkill();
-        woodcuttingSkill = new WoodcuttingSkill();
-
         accountManager = plugin.getAccountManager();
         accountsConfig = accountManager.getAccountsConfig();
 
@@ -52,20 +43,17 @@ public class SkillManager {
     }
 
     private void setupSkillConfig() {
-        skillsFile = new File(plugin.getConfigDir().toFile(), "skills.conf");
+        File skillsFile = new File(plugin.getConfigDir().toFile(), "skills.conf");
         loader = HoconConfigurationLoader.builder().setFile(skillsFile).build();
 
         try {
-            skillsConfig = loader.load();
-
             if (!skillsFile.exists()) {
-                miningSkill.setupConfig(skillsConfig);
-                woodcuttingSkill.setupConfig(skillsConfig);
-
-                loader.save(skillsConfig);
+                plugin.getPluginContainer().getAsset("skills.conf").get().copyToFile(skillsFile.toPath());
             }
+
+            skillsConfig = loader.load();
         } catch (IOException e) {
-            logger.warn("Error setting up the account configuration!");
+            logger.warn("An error occurred while setting up the skills configuration file!");
         }
     }
 

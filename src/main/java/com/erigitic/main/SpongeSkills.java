@@ -16,6 +16,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.*;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 
 import java.io.IOException;
@@ -42,6 +43,9 @@ public class SpongeSkills {
     @Inject
     private Game game;
 
+    @Inject
+    private PluginContainer pluginContainer;
+
     private ConfigurationNode config;
 
     private AccountManager accountManager;
@@ -49,16 +53,7 @@ public class SpongeSkills {
 
     @Listener
     public void preInit(GamePreInitializationEvent event) {
-        try {
-            config = loader.load();
-
-            if (!defaultConfig.toFile().exists()) {
-                config.getNode("placeholder").setValue(true);
-                loader.save(config);
-            }
-        } catch (IOException e) {
-            logger.warn("Error loading default configuration!");
-        }
+        setupConfig();
 
         accountManager = new AccountManager(this);
         skillManager = new SkillManager(this);
@@ -93,6 +88,18 @@ public class SpongeSkills {
         accountManager.createAccount(playerUUID);
     }
 
+    private void setupConfig() {
+        try {
+            if (!defaultConfig.toFile().exists()) {
+                pluginContainer.getAsset("spongeskills.conf").get().copyToFile(defaultConfig);
+            }
+
+            config = loader.load();
+        } catch (IOException e) {
+            logger.warn("An error occurred while setting up the main configuration file!");
+        }
+    }
+
     private void createAndRegisterCommands() {
         CommandSpec skillsCommand = CommandSpec.builder()
                 .description(Text.of("Display levels and experiences amounts for skills"))
@@ -109,6 +116,10 @@ public class SpongeSkills {
 
     public Path getConfigDir() {
         return configDir;
+    }
+
+    public PluginContainer getPluginContainer() {
+        return pluginContainer;
     }
 
     public AccountManager getAccountManager() {
