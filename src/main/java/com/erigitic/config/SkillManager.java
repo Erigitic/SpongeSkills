@@ -1,9 +1,7 @@
 package com.erigitic.config;
 
 import com.erigitic.main.SpongeSkills;
-import com.erigitic.skills.MiningSkill;
 import com.erigitic.skills.Skill;
-import com.erigitic.skills.WoodcuttingSkill;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -30,9 +28,6 @@ public class SkillManager {
 
     private SpongeSkills plugin;
 
-    private MiningSkill miningSkill;
-    private WoodcuttingSkill woodcuttingSkill;
-
     private AccountManager accountManager;
     private ConfigurationNode accountsConfig;
 
@@ -40,9 +35,6 @@ public class SkillManager {
         this.plugin = plugin;
 
         logger = plugin.getLogger();
-
-        miningSkill = new MiningSkill();
-        woodcuttingSkill = new WoodcuttingSkill();
 
         accountManager = plugin.getAccountManager();
         accountsConfig = accountManager.getAccountsConfig();
@@ -61,7 +53,7 @@ public class SkillManager {
 
             skillsConfig = loader.load();
         } catch (IOException e) {
-            logger.warn("An error occured while setting up the skills configuration file!");
+            logger.warn("An error occurred while setting up the skills configuration file!");
         }
     }
 
